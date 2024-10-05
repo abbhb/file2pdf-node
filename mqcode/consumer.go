@@ -294,6 +294,7 @@ func (consumer *Consumer) StartConsumer() {
 				if needToPDFObject.Id != nil {
 					consumer.producer.SendError(needToPDFObject.Id, err.Error())
 					log.Printf("统一异常处理  异常:%s", err.Error())
+
 				}
 				continue
 			}
