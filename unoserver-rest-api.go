@@ -1,14 +1,14 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	"github.com/libreofficedocker/unoserver-rest-api/mqcode"
 	"log"
-	"net"
 	"os"
 	"time"
 
-	"github.com/libreofficedocker/unoserver-rest-api/api"
 	"github.com/libreofficedocker/unoserver-rest-api/depot"
-	"github.com/libreofficedocker/unoserver-rest-api/unoconvert"
 	"github.com/urfave/cli"
 )
 
@@ -55,10 +55,18 @@ func main() {
 		},
 	}
 	app.Action = mainAction
-
-	if err := app.Run(os.Args); err != nil {
-		os.Exit(1)
+	var err = errors.New("nil")
+	for {
+		err = app.Run(os.Args)
+		if err = app.Run(os.Args); err != nil {
+			fmt.Printf("重试中，出错了:%s", err)
+			time.Sleep(time.Second * 5)
+		}
+		if err == nil {
+			break
+		}
 	}
+
 }
 
 func mainAction(c *cli.Context) {
@@ -69,14 +77,15 @@ func mainAction(c *cli.Context) {
 	defer depot.CleanTemp()
 
 	// Configure unoconvert options
-	unoAddr := c.String("unoserver-addr")
-	host, port, _ := net.SplitHostPort(unoAddr)
-	unoconvert.SetInterface(host)
-	unoconvert.SetPort(port)
-	unoconvert.SetExecutable(c.String("unoconvert-bin"))
-	unoconvert.SetContextTimeout(c.Duration("unoconvert-timeout"))
+	//unoAddr := c.String("unoserver-addr")
+	//host, port, _ := net.SplitHostPort(unoAddr)
+	//unoconvert.SetInterface(host)
+	//unoconvert.SetPort(port)
+	//unoconvert.SetExecutable(c.String("unoconvert-bin"))
+	//unoconvert.SetContextTimeout(c.Duration("unoconvert-timeout"))
 
-	// Start the API server
-	addr := c.String("addr")
-	api.ListenAndServe(addr)
+	var producer = mqcode.CreateProducer()
+	// 启动rocketmq消费者开始等待需要转换的文件进入，一次最大允许一个
+	var consumers = mqcode.CreateConsumer(producer)
+	consumers.StartConsumer()
 }
