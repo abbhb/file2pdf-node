@@ -81,10 +81,12 @@ func (p *Producer) SendError(id *string, message string) {
 		Message: &message,
 	}
 	errorMsg, err := json.Marshal(errorMsgObject)
-
+	tag := new(string)
+	*tag = "resp"
 	resp, err := p.ProducerCli.Send(context.TODO(), &golang.Message{
 		Topic: Topic,
 		Body:  errorMsg,
+		Tag:   tag,
 	})
 	if err != nil {
 		log.Fatal(err)

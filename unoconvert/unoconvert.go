@@ -3,12 +3,13 @@ package unoconvert
 import (
 	"context"
 	"fmt"
+	"log"
 	"os/exec"
 	"time"
 )
 
 var (
-	DefaultContextTimeout = 0 * time.Minute
+	DefaultContextTimeout = 5 * time.Minute
 )
 
 var (
@@ -70,18 +71,13 @@ func (u *Unoconvert) SetContextTimeout(timeout time.Duration) {
 func (u *Unoconvert) Run(infile string, outfile string, opts ...string) error {
 	var args = []string{}
 
-	connections := []string{
-		fmt.Sprintf("--interface=%s", u.Interface),
-		fmt.Sprintf("--port=%s", u.Port),
-	}
-
 	files := []string{infile, outfile}
 
-	args = append(connections, files...)
+	args = append(files)
 	args = append(args, opts...)
 
 	cmd := exec.Command(u.Executable, args...)
-
+	log.Printf("unoconvert executable %s ,args %s", u.Executable, args)
 	return cmd.Run()
 }
 

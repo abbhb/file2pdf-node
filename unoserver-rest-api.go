@@ -43,7 +43,7 @@ func main() {
 		},
 		cli.DurationFlag{
 			Name:   "unoconvert-timeout",
-			Value:  0 * time.Minute,
+			Value:  10 * time.Minute,
 			Usage:  "Set the unoconvert run timeout",
 			EnvVar: "UNOCONVERT_TIMEOUT",
 		},
@@ -83,7 +83,6 @@ func mainAction(c *cli.Context) {
 	//unoconvert.SetPort(port)
 	//unoconvert.SetExecutable(c.String("unoconvert-bin"))
 	//unoconvert.SetContextTimeout(c.Duration("unoconvert-timeout"))
-
 	var producer = mqcode.CreateProducer()
 	// 启动rocketmq消费者开始等待需要转换的文件进入，一次最大允许一个
 	var consumers = mqcode.CreateConsumer(producer)
