@@ -15,7 +15,7 @@ docker pull abbhb/file2pdf_node:1.0.2
 ## Build流程
 #### 1.拉取代码
 ```shell
-git pull https://github.com/abbhb/file2pdf-node.git
+git clone https://github.com/abbhb/file2pdf-node.git
 ```
 #### 2.构建镜像
 ```shell
