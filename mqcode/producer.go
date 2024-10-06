@@ -3,7 +3,7 @@ package mqcode
 import (
 	"context"
 	"encoding/json"
-	"github.com/abbhb/filel2pdf-node/typeall"
+	"github.com/abbhb/file2pdf-node/typeall"
 	"github.com/apache/rocketmq-clients/golang/v5"
 	"github.com/apache/rocketmq-clients/golang/v5/credentials"
 	"log"

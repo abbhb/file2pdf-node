@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/abbhb/filel2pdf-node/depot"
-	"github.com/abbhb/filel2pdf-node/mqcode"
+	"github.com/abbhb/file2pdf-node/depot"
+	"github.com/abbhb/file2pdf-node/mqcode"
+
 	"github.com/urfave/cli"
 	"log"
 	"os"

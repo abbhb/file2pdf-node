@@ -1,4 +1,4 @@
-module github.com/abbhb/filel2pdf-node
+module github.com/abbhb/file2pdf-node
 
 go 1.21
 
