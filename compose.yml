@@ -1,7 +1,0 @@
-services:
-  libreoffice:
-    build:
-      context: .
-    restart: always
-    ports:
-      - 2003:2003

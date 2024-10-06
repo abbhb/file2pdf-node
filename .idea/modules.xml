@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/unoserver-rest-api.iml" filepath="$PROJECT_DIR$/.idea/unoserver-rest-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/file2pdf-node.iml" filepath="$PROJECT_DIR$/.idea/file2pdf-node.iml" />
     </modules>
   </component>
 </project>

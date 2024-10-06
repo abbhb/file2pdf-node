@@ -3,24 +3,23 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/libreofficedocker/unoserver-rest-api/mqcode"
+	"github.com/abbhb/filel2pdf-node/depot"
+	"github.com/abbhb/filel2pdf-node/mqcode"
+	"github.com/urfave/cli"
 	"log"
 	"os"
 	"time"
-
-	"github.com/libreofficedocker/unoserver-rest-api/depot"
-	"github.com/urfave/cli"
 )
 
 var Version = "unstable"
 
 func init() {
-	log.SetPrefix("unoserver-rest-api ")
+	log.SetPrefix("file2pdf-node ")
 }
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "unoserver-rest-api"
+	app.Name = "file2pdf-node"
 	app.Version = Version
 	app.Usage = "The simple REST API for unoserver and unoconvert"
 	app.Flags = []cli.Flag{
