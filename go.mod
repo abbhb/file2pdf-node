@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/unidoc/unipdf/v3 v3.62.0
 	github.com/urfave/cli v1.22.10
+	gopkg.in/resty.v1 v1.12.0
 	rsc.io/pdf v0.1.1
 )
 
