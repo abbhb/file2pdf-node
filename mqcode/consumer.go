@@ -17,7 +17,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -61,9 +60,8 @@ func (consumer *Consumer) handel(needToPDFObject *typeall.PrintDataFileToPDFReq)
 		return nil, errors.New("任务FilePDFUploadUrl不存在")
 	}
 	log.Printf("json是正确的")
-	filename := filepath.Base(*needToPDFObject.FileUrl)
 	// 创建临时文件
-	tempFile, err := os.CreateTemp(depot.WorkDir, "file*"+filename)
+	tempFile, err := os.CreateTemp(depot.WorkDir, "file*dayinlinshi")
 	if err != nil {
 		// todo:bug 文件名长到一定程度会报错
 		return nil, errors.New("Failed to create temp file")
@@ -97,7 +95,7 @@ func (consumer *Consumer) handel(needToPDFObject *typeall.PrintDataFileToPDFReq)
 	tempFilePath := tempFile.Name()
 	fmt.Printf("File downloaded to: %s\n", tempFilePath)
 	// Prepare output file path
-	outFile, err := os.CreateTemp(depot.WorkDir, "file*"+filename+".pdf")
+	outFile, err := os.CreateTemp(depot.WorkDir, "file*goo"+".pdf")
 	defer func(name string) {
 		err := os.Remove(name)
 		if err != nil {

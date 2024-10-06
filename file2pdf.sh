@@ -2,7 +2,7 @@
 
 # 定义容器名称前缀和后缀
 PREFIX="file2pdf_node_"
-SUFFIX="file2pdf_node:1.0.2"
+SUFFIX="file2pdf_node:1.0.3"
 
 # 函数：启动容器
 start_containers() {
