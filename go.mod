@@ -1,13 +1,12 @@
-module github.com/libreofficedocker/unoserver-rest-api
+module github.com/abbhb/filel2pdf-node
 
 go 1.21
 
 require (
 	github.com/apache/rocketmq-clients/golang/v5 v5.1.1-rc1
-	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
-	github.com/gin-gonic/gin v1.8.1
 	github.com/unidoc/unipdf/v3 v3.62.0
 	github.com/urfave/cli v1.22.10
+	gopkg.in/resty.v1 v1.12.0
 	rsc.io/pdf v0.1.1
 )
 

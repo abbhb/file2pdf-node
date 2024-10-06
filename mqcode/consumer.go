@@ -5,18 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/abbhb/filel2pdf-node/depot"
+	"github.com/abbhb/filel2pdf-node/typeall"
+	"github.com/abbhb/filel2pdf-node/unoconvert"
 	rmq_client "github.com/apache/rocketmq-clients/golang/v5"
 	"github.com/apache/rocketmq-clients/golang/v5/credentials"
-	"github.com/libreofficedocker/unoserver-rest-api/depot"
-	"github.com/libreofficedocker/unoserver-rest-api/typeall"
-	"github.com/libreofficedocker/unoserver-rest-api/unoconvert"
+
 	model "github.com/unidoc/unipdf/v3/model"
+	"gopkg.in/resty.v1"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 )
 
@@ -64,6 +65,7 @@ func (consumer *Consumer) handel(needToPDFObject *typeall.PrintDataFileToPDFReq)
 	// 创建临时文件
 	tempFile, err := os.CreateTemp(depot.WorkDir, "file*"+filename)
 	if err != nil {
+		// todo:bug 文件名长到一定程度会报错
 		return nil, errors.New("Failed to create temp file")
 	}
 	defer func(tempFile *os.File) {
@@ -123,103 +125,58 @@ func (consumer *Consumer) handel(needToPDFObject *typeall.PrintDataFileToPDFReq)
 		return nil, errors.New("unoconvert error")
 	}
 	// 到此处应该是成功了
-	resultChan := make(chan typeall.PageCountResult)
-	// 启动一个新的协程来处理 PDF 文件
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		// 打开 PDF 文件
-		reader, file, err := model.NewPdfReaderFromFile(outFileName, &model.ReaderOpts{})
-		if err != nil {
-			resultChan <- typeall.PageCountResult{Err: err}
-			return
-		}
-		defer func(file *os.File) {
-			err := file.Close()
-			if err != nil {
 
-			}
-		}(file)
+	// 打开 PDF 文件
+	reader, file2, err := model.NewPdfReaderFromFile(outFileName, &model.ReaderOpts{})
+	if err != nil {
+		return nil, errors.New("create reader failed")
+	}
 
-		// 获取 PDF 文件的页数
-		numPages, err := reader.GetNumPages()
-		if err != nil {
-			resultChan <- typeall.PageCountResult{Err: err}
-			return
-		}
-
-		// 发送结果到通道
-		resultChan <- typeall.PageCountResult{NumPages: numPages}
-	}()
+	// 获取 PDF 文件的页数
+	numPages, err := reader.GetNumPages()
+	if err != nil {
+		return nil, errors.New("get num pages failed")
+	}
+	log.Printf("协程运行结束")
+	err = file2.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	// 打开文件
-	file, err := os.Open(outFileName)
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-
-		}
-	}(file)
-
+	file, err := os.ReadFile(outFileName)
 	if err != nil {
 		log.Printf("failed to open file2: %v", err)
 		return nil, errors.New("failed to open file2")
 	}
 
-	// 获取文件信息
-	_, err = file.Stat()
-	if err != nil {
-		log.Printf("failed to get file info: %v", err)
-		return nil, errors.New("failed to get file info")
-	}
-
-	// 创建 HTTP 请求
-	request, err := http.NewRequest("PUT", *needToPDFObject.FilePDFUploadUrl, file)
-	if err != nil {
-		log.Printf("failed to create request: %v", err)
-		return nil, errors.New("failed to create request")
-	}
-	// 设置 Content-Type
-	request.Header.Set("Content-Type", "application/octet-stream")
-	// 发送请求
-	client := &http.Client{}
-	response, err := client.Do(request)
+	// Create a Resty Client
+	client := resty.New()
+	// Request goes as JSON content type
+	// No need to set auth token, error, if you have client level settings
+	response, err := client.R().
+		SetBody(file).
+		Put(*needToPDFObject.FilePDFUploadUrl)
 	if err != nil {
 		log.Printf("failed to send request: %v", err)
 		return nil, errors.New("failed to send request")
 	}
 
 	// 检查响应状态
-	if response.StatusCode != http.StatusOK {
-		log.Printf("failed to upload file: %s", response.Status)
+	if response.StatusCode() != http.StatusOK {
 		return nil, errors.New("failed to upload file")
-
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(response.Body)
 
 	log.Printf("File uploaded successfully")
 	// Send成功消息
-	// 等待协程完成
-	wg.Wait()
-	// 关闭通道
-	defer close(resultChan)
-	result := <-resultChan
-	if result.Err != nil {
-		log.Printf("Not Get Pages")
-	}
+
 	status := new(int)
 	*status = 1
 	// 发送消息失败的直接丢掉
 	printDataFromPDFResp := &typeall.PrintDataFromPDFResp{
 		Id:         needToPDFObject.Id,
 		FilePDFUrl: needToPDFObject.FilePDFUrl,
-		PageNums:   &result.NumPages,
+		PageNums:   &numPages,
 		Status:     status,
 		Message:    nil,
 	}
@@ -298,8 +255,9 @@ func (consumer *Consumer) StartConsumer() {
 				}
 				continue
 			}
-			printData, err := json.Marshal(printDataFromPDFResp)
-			err = consumer.producer.Send(printData)
+
+			err = consumer.producer.Send(printDataFromPDFResp)
+			log.Printf("消息发送成功")
 			if err != nil {
 				log.Printf("failed to send print data: %v", err)
 				consumer.producer.SendError(needToPDFObject.Id, "failed to send print data")

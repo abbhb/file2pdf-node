@@ -1,69 +1,28 @@
-# unoserver-rest-api
-
-The simple REST API for unoserver
-
-> **Warning**
->
-> It is important to know that the  REST API layer DOES NOT provide any type of security whatsoever.  
-> It is NOT RECOMMENDED to expose this container image to the internet.
+# file2pdf-node
+依赖unoserver，就加了rocket消费者消费，消费完生产成功的回报消息。[配套项目](https://github.com/abbhb/OA_Helper)
 
 ## Usage
 
-Unoserver needs to be installed, see [Installation](https://github.com/unoconv/unoserver#installation) guide.
+启动容器连接上rocketmq自动开始消费消息
 
-```sh
-NAME:
-   unoserver-rest-api - The simple REST API for unoserver and unoconvert
-
-GLOBAL OPTIONS:
-   --addr value                The addr used by the unoserver api server (default: "0.0.0.0:2004")
-   --unoserver-addr value      The unoserver addr used by the unoconvert (default: "127.0.0.1:2002") [$UNOSERVER_ADDR]
-   --unoconvert-bin value      Set the unoconvert executable path. (default: "unoconvert") [$UNOCONVERT_BIN]
-   --unoconvert-timeout value  Set the unoconvert run timeout (default: 0s) [$UNOCONVERT_TIMEOUT]
-   --help, -h                  show help
-   --version, -v               print the version
+## 快速使用
+```shell
+docker pull abbhb/file2pdf_node:1.0.2
 ```
+直接启动即可，为项目附属，所以消费者逻辑固定，配置就懒得动态了，需要修改自行build
 
-### Using with Docker
 
-The [libreofficedocker/libreoffice-unoserver](https://github.com/libreofficedocker/libreoffice-unoserver) already have `unoserver-rest-api` included within the Docker image. 
-
-## API
-
-There is only one POST `/request` API.
-
-**Default payload**
-
-```sh
-curl -s -v \
-   --request POST \
-   --url http://127.0.0.1:2004/request \
-   --header 'Content-Type: multipart/form-data' \
-   --form "file=@/path/to/your/file.xlsx" \
-   --form 'convert-to=pdf' \
-   --output 'file.pdf'
+## Build流程
+#### 1.拉取代码
+```shell
+git pull https://github.com/abbhb/file2pdf-node.git
 ```
-
-- `file`: Type of `File`, required
-- `convert-to`: Type of `String`, required
-
-**Advance payload**
-
-```sh
-curl -s -v \
-   --request POST \
-   --url http://127.0.0.1:2004/request \
-   --header 'Content-Type: multipart/form-data' \
-   --form "file=@/path/to/your/file.xlsx" \
-   --form 'convert-to=pdf' \
-   --form 'opts[]=--landscape' \
-   --output 'file.pdf'
+#### 2.构建镜像
+```shell
+docker build
 ```
-
-- `file`: Type of `File`, required
-- `convert-to`: Type of `String`, required
-- `opts`: Type of `String[]`
-
-## License
-
-Licensed under [Apache-2.0 license](LICENSE).
+#### 3.一键多开
+这一步需要具体修改脚本！
+```shell
+./file2pdf.sh start
+```

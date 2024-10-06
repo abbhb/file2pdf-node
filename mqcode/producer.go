@@ -3,9 +3,9 @@ package mqcode
 import (
 	"context"
 	"encoding/json"
+	"github.com/abbhb/filel2pdf-node/typeall"
 	"github.com/apache/rocketmq-clients/golang/v5"
 	"github.com/apache/rocketmq-clients/golang/v5/credentials"
-	"github.com/libreofficedocker/unoserver-rest-api/typeall"
 	"log"
 )
 
@@ -51,13 +51,19 @@ func CreateProducer() *Producer {
 	}
 }
 
-func (p *Producer) Send(message []byte) error {
+// send 一定要带tag，同一个消费者组要求监听的tag一致
+func (p *Producer) Send(message *typeall.PrintDataFromPDFResp) error {
 	if p.ProducerCli == nil {
 		p.ProducerCli = CreateProducerCli()
 	}
+	printData, err := json.Marshal(message)
+	log.Printf("正确处理")
+	tag := new(string)
+	*tag = "resp"
 	resp, err := p.ProducerCli.Send(context.TODO(), &golang.Message{
 		Topic: Topic,
-		Body:  message,
+		Body:  printData,
+		Tag:   tag,
 	})
 	if err != nil {
 		return err
