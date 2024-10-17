@@ -7,7 +7,7 @@
 
 ## 快速使用
 ```shell
-docker pull abbhb/file2pdf_node:1.0.2
+docker pull abbhb/file2pdf_node:1.0.3
 ```
 直接启动即可，为项目附属，所以消费者逻辑固定，配置就懒得动态了，需要修改自行build
 
